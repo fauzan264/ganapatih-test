@@ -26,19 +26,18 @@ export default function Home() {
       const response = await login({ username, password });
       if (response.status == 200) {
         setAuth({
-          token: response.data.data.token,
-          id: response.data.data.token,
-          username: response.data.data.full_name,
+          token: response.data.token,
+          id: "",
+          username: "",
         });
 
-        toast.info(response.data.message);
-        return router.push("/app");
-      } else {
-        toast.error(response.data.data.message);
+        toast.info("Login user successful");
+        router.push("/app");
       }
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response) {
+        console.log(err.response);
         toast.error(err.response.data.message);
       }
     }
