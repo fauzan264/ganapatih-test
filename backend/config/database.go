@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fauzan264/backend/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,6 +26,7 @@ func InitDatabase() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
+		model.User{},
 	)
 
 	if err != nil {
