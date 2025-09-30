@@ -5,21 +5,21 @@ export const login = ({
   username,
   password,
 }: Pick<IAuth, "username" | "password">) => {
-  return axiosInstance.post("/auth/login", { username, password });
+  return axiosInstance.post("/login", { username, password });
 };
 
 export const register = ({
   username,
   password,
 }: Pick<IAuth, "username" | "password">) => {
-  return axiosInstance.post("/auth/register", {
+  return axiosInstance.post("/register", {
     username,
     password,
   });
 };
 
 export const sessionLogin = ({ token }: { token: string }) => {
-  return axiosInstance.get("/auth/session", {
+  return axiosInstance.get("/session", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
