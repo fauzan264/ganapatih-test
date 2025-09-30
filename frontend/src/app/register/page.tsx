@@ -1,9 +1,8 @@
 "use client";
 import Button from "@/components/ui/Button";
 import FormInput from "@/components/ui/FormInput";
-import { loginSchema } from "@/features/auth/login/schemas/loginSchema";
-import { login } from "@/services/auth";
-import useAuthStore from "@/store/useAuthStore";
+import { registerSchema } from "@/features/auth/register/schemas/registerSchema";
+import { register } from "@/services/auth";
 import { ErrorResponse } from "@/types/error";
 import { AxiosError } from "axios";
 import { useFormik } from "formik";
@@ -11,11 +10,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-export default function Home() {
+export default function RegisterPage() {
   const router = useRouter();
-  const { setAuth } = useAuthStore();
 
-  const onLogin = async ({
+  const onRegister = async ({
     username,
     password,
   }: {
@@ -23,19 +21,12 @@ export default function Home() {
     password: string;
   }) => {
     try {
-      const response = await login({ username, password });
-      if (response.status == 200) {
-        setAuth({
-          token: response.data.data.token,
-          id: response.data.data.token,
-          username: response.data.data.full_name,
-        });
-
-        toast.info(response.data.message);
-        return router.push("/app");
-      } else {
-        toast.error(response.data.data.message);
-      }
+      const response = await register({
+        username,
+        password,
+      });
+      toast.info(response.data.message);
+      router.push("/");
     } catch (error: unknown) {
       const err = error as AxiosError<ErrorResponse>;
       if (err.response) {
@@ -49,17 +40,21 @@ export default function Home() {
       username: "",
       password: "",
     },
-    validationSchema: loginSchema,
+    validationSchema: registerSchema,
     onSubmit: ({ username, password }) => {
-      onLogin({ username, password });
+      onRegister({
+        username,
+        password,
+      });
     },
   });
-
   return (
     <div className="min-h-screen flex items-center justify-center mt-15">
       <div className="card w-4/5 md:w-2/5 card-border card-md bg-slate-50 shadow-sm p-5 rounded-xl">
         <div className="card-body">
-          <div className="card-title justify-center text-slate-800">Login</div>
+          <div className="card-title justify-center text-slate-800">
+            Register
+          </div>
           <form onSubmit={formik.handleSubmit}>
             <div className="flex flex-wrap">
               <FormInput
@@ -74,13 +69,13 @@ export default function Home() {
                 label="Password"
                 type="password"
               />
-              <Button type="submit" name="Login" />
+              <Button type="submit" name="Register" />
             </div>
           </form>
-          <p className="mt-3 text-slate-800 mb-5">
+          <p className="mt-3 text-slate-800">
             You have an account?{" "}
-            <Link href="/register" className="text-slate-600">
-              Register
+            <Link href="/" className="text-slate-600">
+              Login
             </Link>
           </p>
         </div>
