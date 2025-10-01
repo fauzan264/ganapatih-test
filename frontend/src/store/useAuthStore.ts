@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import useFollowStore from "./useFollowStore";
 
 interface IUseAuthStoreState {
   id: string;
@@ -30,8 +31,13 @@ const useAuthStore = create<IUseAuthStore>()(
         set({ token, id, username });
       },
       logout: () => {
+        // Clear auth state
         set({ token: "", id: "", username: "" });
         localStorage.removeItem("authToken");
+
+        // Clear follow state
+        const followStore = useFollowStore.getState();
+        followStore.clearFollows();
       },
     }),
     {
