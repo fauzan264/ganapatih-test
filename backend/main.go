@@ -44,16 +44,19 @@ func main() {
 	}))
 
 	// repositories
-	authRepository := repository.NewAuthRepository(db)
+	userRepository := repository.NewUserRepository(db)
 	feedRepository := repository.NewFeedRepository(db)
+	followRepository := repository.NewFollowRepository(db)
 
 	// services
-	authService := service.NewAuthService(authRepository)
+	authService := service.NewAuthService(userRepository)
 	feedService := service.NewFeedService(feedRepository)
+	followService := service.NewFollowService(followRepository, userRepository)
 
 	// handlers
 	authHandler :=  handlers.NewAuthHandler(authService)
 	feedHandler :=  handlers.NewFeedHandler(feedService)
+	followHandler :=  handlers.NewFollowHandler(followService)
 
 	authMiddleware := middleware.AuthMiddleware(authService)
 	api := router.Group("/api")
@@ -67,7 +70,9 @@ func main() {
 	api.Get("/feed", authMiddleware, feedHandler.GetFeeds)
 	api.Post("/posts", authMiddleware, feedHandler.CreateFeed)
 
-
+	// follow
+	api.Post("/follow/:userid", authMiddleware, followHandler.FollowUser)
+	api.Delete("/follow/:userid", authMiddleware, followHandler.UnfollowUser)
 
 	if err := router.Listen(fmt.Sprintf("%s:%s", cfg.AppHost, cfg.AppPort)); err != nil {
 		log.Println("Error: ", err)
