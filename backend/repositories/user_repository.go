@@ -5,23 +5,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type authRepository struct {
+type userRepository struct {
 	db *gorm.DB
 }
 
-type AuthRepository interface {
+type UserRepository interface {
 	Register(user model.User) (model.User, error)
 	Login(user model.User) (model.User, error)
 	GetUserByUsername(username string) (model.User, error)
 	GetUserByID(ID int) (model.User, error)
 	Session(user model.User) (model.User, error)
+	UserExists(userID int) (bool, error)
 }
 
-func NewAuthRepository (db *gorm.DB) *authRepository {
-	return &authRepository{db}
+func NewUserRepository (db *gorm.DB) *userRepository {
+	return &userRepository{db}
 }
 
-func (r *authRepository) Register(user model.User) (model.User, error) {
+func (r *userRepository) Register(user model.User) (model.User, error) {
 	err := r.db.Create(&user).Error
 	if err != nil {
 		return user, err
@@ -30,7 +31,7 @@ func (r *authRepository) Register(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (r *authRepository) Login(user model.User) (model.User, error) {
+func (r *userRepository) Login(user model.User) (model.User, error) {
 	err := r.db.First(&user).Error
 	if err != nil {
 		return user, err
@@ -39,7 +40,7 @@ func (r *authRepository) Login(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (r *authRepository) GetUserByUsername(username string) (model.User, error) {
+func (r *userRepository) GetUserByUsername(username string) (model.User, error) {
 	user := model.User{}
 	err := r.db.Where("username = ?", username).First(&user).Error
 	if err != nil {
@@ -49,7 +50,7 @@ func (r *authRepository) GetUserByUsername(username string) (model.User, error) 
 	return user, nil
 }
 
-func (r *authRepository) GetUserByID(ID int) (model.User, error) {
+func (r *userRepository) GetUserByID(ID int) (model.User, error) {
 	user := model.User{}
 	err := r.db.Where("id = ?", ID).First(&user).Error
 	if err != nil {
@@ -59,11 +60,17 @@ func (r *authRepository) GetUserByID(ID int) (model.User, error) {
 	return user, nil
 }
 
-func (r *authRepository) Session(user model.User) (model.User, error) {
+func (r *userRepository) Session(user model.User) (model.User, error) {
 	err := r.db.First(&user).Error
 	if err != nil {
 		return user, err
 	}
 
 	return user, nil
+}
+
+func (r *userRepository) UserExists(userID int) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.User{}).Where("id = ?", userID).Count(&count).Error
+	return count > 0, err
 }
