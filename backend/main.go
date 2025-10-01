@@ -45,12 +45,15 @@ func main() {
 
 	// repositories
 	authRepository := repository.NewAuthRepository(db)
+	feedRepository := repository.NewFeedRepository(db)
 
 	// services
 	authService := service.NewAuthService(authRepository)
+	feedService := service.NewFeedService(feedRepository)
 
 	// handlers
 	authHandler :=  handlers.NewAuthHandler(authService)
+	feedHandler :=  handlers.NewFeedHandler(feedService)
 
 	authMiddleware := middleware.AuthMiddleware(authService)
 	api := router.Group("/api")
@@ -59,6 +62,11 @@ func main() {
 	api.Post("/register", authHandler.RegisterUser)
 	api.Post("/login", authHandler.LoginUser)
 	api.Get("/session", authMiddleware, authHandler.SessionUser)
+
+	// feed
+	api.Get("/feed", authMiddleware, feedHandler.GetFeeds)
+	api.Post("/posts", authMiddleware, feedHandler.CreateFeed)
+
 
 
 	if err := router.Listen(fmt.Sprintf("%s:%s", cfg.AppHost, cfg.AppPort)); err != nil {

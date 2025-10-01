@@ -27,6 +27,7 @@ func InitDatabase() *gorm.DB {
 
 	err = db.AutoMigrate(
 		model.User{},
+		model.Feed{},
 	)
 
 	if err != nil {
