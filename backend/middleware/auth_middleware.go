@@ -14,7 +14,7 @@ func AuthMiddleware(authService service.AuthService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		authHeaderToken := c.Get("Authorization")
 		if !strings.Contains(authHeaderToken, "Bearer") {
-			return sendUnauthorizedResponse(c)
+			return sendUnauthorizedResponse()
 		}
 
 		tokenString := ""
@@ -26,12 +26,12 @@ func AuthMiddleware(authService service.AuthService) fiber.Handler {
 		jwtService := utils.NewJWTService()
 		token, err := jwtService.ValidateToken(tokenString)
 		if err != nil || !token.Valid {
-			return sendUnauthorizedResponse(c)
+			return sendUnauthorizedResponse()
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return sendUnauthorizedResponse(c)
+			return sendUnauthorizedResponse()
 		}
 
 		userID := claims["id"].(float64)
@@ -42,7 +42,7 @@ func AuthMiddleware(authService service.AuthService) fiber.Handler {
 
 		user, err := authService.GetUserByID(requestUser.ID)
 		if err != nil {
-			return sendUnauthorizedResponse(c)
+			return sendUnauthorizedResponse()
 		}
 
 		c.Locals("authUser", user)
@@ -51,6 +51,6 @@ func AuthMiddleware(authService service.AuthService) fiber.Handler {
 	}
 }
 
-func sendUnauthorizedResponse(c *fiber.Ctx) error {
+func sendUnauthorizedResponse() error {
 	return fiber.NewError(fiber.StatusUnauthorized, "Please provide a valid authentication token")
 }

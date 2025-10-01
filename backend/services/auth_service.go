@@ -12,7 +12,7 @@ import (
 )
 
 type authService struct {
-	authRepository repository.AuthRepository
+	userRepository repository.UserRepository
 }
 
 type AuthService interface {
@@ -22,8 +22,8 @@ type AuthService interface {
 	GetUserByID(ID int) (response.UserResponse, error)
 }
 
-func NewAuthService(authRepository repository.AuthRepository) AuthService {
-	return &authService{authRepository}
+func NewAuthService(userRepository repository.UserRepository) AuthService {
+	return &authService{userRepository}
 }
 
 func (s *authService) RegisterUser(request request.RegisterRequest) (response.RegisterResponse, error) {
@@ -37,7 +37,7 @@ func (s *authService) RegisterUser(request request.RegisterRequest) (response.Re
 		PasswordHash: string(passwordHash),
 	}
 
-	user, err := s.authRepository.Register(userData)
+	user, err := s.userRepository.Register(userData)
 	if err != nil {
 		return response.RegisterResponse{}, err
 	}
@@ -51,7 +51,7 @@ func (s *authService) RegisterUser(request request.RegisterRequest) (response.Re
 }
 
 func (s *authService) LoginUser(request request.LoginRequest) (response.LoginResponse, error) {
-	user, err := s.authRepository.GetUserByUsername(request.Username)
+	user, err := s.userRepository.GetUserByUsername(request.Username)
 	
 	if err != nil {
 		return response.LoginResponse{}, errors.New("Invalid email or password")
@@ -73,7 +73,7 @@ func (s *authService) LoginUser(request request.LoginRequest) (response.LoginRes
 }
 
 func (s *authService) SessionUser(ID int) (response.SessionResponse, error) {
-	user, err := s.authRepository.GetUserByID(ID)
+	user, err := s.userRepository.GetUserByID(ID)
 	if err != nil {
 		return response.SessionResponse{}, errors.New("User Not Found")
 	}
@@ -87,7 +87,7 @@ func (s *authService) SessionUser(ID int) (response.SessionResponse, error) {
 }
 
 func (s *authService) GetUserByID(ID int) (response.UserResponse, error) {
-	user, err := s.authRepository.GetUserByID(ID)
+	user, err := s.userRepository.GetUserByID(ID)
 	if err != nil {
 		return response.UserResponse{}, err
 	}
