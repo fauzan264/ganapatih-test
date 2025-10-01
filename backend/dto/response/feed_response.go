@@ -4,7 +4,7 @@ import "time"
 
 type FeedResponse struct {
 	ID					int				`json:"id"`
-	Userid			int				`json:"user_id"`
+	Userid			int				`json:"userid"`
 	Content			string		`json:"content"`
 	Createdat		time.Time	`json:"createdat"`
 }
