@@ -1,0 +1,192 @@
+openapi: 3.0.0
+info:
+  title: Ganapatih Test API
+  version: 1.0.0
+  description: >
+    REST API for Ganapatih Test.  
+    Includes authentication, feed, and follow system.
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: budi
+                password:
+                  type: string
+                  example: password123
+      responses:
+        "201":
+          description: User registered successfully
+        "409":
+          description: Username already taken
+
+  /login:
+    post:
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: budi
+                password:
+                  type: string
+                  example: password123
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Invalid username or password
+
+  /session:
+    get:
+      summary: Get logged in user session
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User session info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  /follow/{userId}:
+    post:
+      summary: Follow a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Followed successfully
+        "404":
+          description: User not found
+    delete:
+      summary: Unfollow a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Unfollowed successfully
+
+  /feed:
+    get:
+      summary: Get list of feeds
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+      responses:
+        "200":
+          description: List of feeds
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feed"
+
+  /posts:
+    post:
+      summary: Create a new feed
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  maxLength: 200
+                  example: Hello world!
+      responses:
+        "201":
+          description: Feed created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feed"
+        "422":
+          description: Content too long
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+
+    Feed:
+      type: object
+      properties:
+        id:
+          type: integer
+        userid:
+          type: integer
+        content:
+          type: string
+        createdat:
+          type: string
+          format: date-time
